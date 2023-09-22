@@ -30,11 +30,7 @@ RUN cd bindings/php && ./configure LIBS="-lpthread" --with-pHash="/usr/local"
 RUN cd bindings/php && patch < ./pHash.cpp.patch
 RUN cd bindings/php && patch < ./php_pHash.h.patch
 
-# patch pHash.cpp
-# RUN cd bindings/php && patch < ./patch-pHash.cpp
-# RUN cd bindings/php && patch < ./patch-php__pHash.h
-
-
+# make & make install
 RUN cd bindings/php && make -j $(nproc)
 RUN cd bindings/php && make install
 
