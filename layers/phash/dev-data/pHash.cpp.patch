@@ -159,7 +159,7 @@
  
 -    return_res_id =
 -        ZEND_REGISTER_RESOURCE(return_value, return_res, le_ph_image_hash);
-+    RETURN_RES(zend_register_resource(return_res, le_ph_txt_hash));
++    RETURN_RES(zend_register_resource(return_res, le_ph_image_hash));
  }
  /* }}} ph_dct_imagehash */
  
@@ -173,7 +173,7 @@
  
 -    return_res_id =
 -        ZEND_REGISTER_RESOURCE(return_value, return_res, le_ph_txt_hash);
-+    RETURN_RES(zend_register_resource(return_res, le_ph_audio_hash));
++    RETURN_RES(zend_register_resource(return_res, le_ph_txt_hash));
  }
  /* }}} ph_texthash */
  

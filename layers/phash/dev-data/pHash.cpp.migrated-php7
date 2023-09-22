@@ -190,7 +190,7 @@ PHP_FUNCTION(ph_dct_imagehash) {
     } else
         return_res = hash;
 
-    RETURN_RES(zend_register_resource(return_res, le_ph_txt_hash));
+    RETURN_RES(zend_register_resource(return_res, le_ph_image_hash));
 }
 /* }}} ph_dct_imagehash */
 
@@ -219,7 +219,7 @@ PHP_FUNCTION(ph_texthash) {
     } else
         RETURN_FALSE;
 
-    RETURN_RES(zend_register_resource(return_res, le_ph_audio_hash));
+    RETURN_RES(zend_register_resource(return_res, le_ph_txt_hash));
 }
 /* }}} ph_texthash */
 
