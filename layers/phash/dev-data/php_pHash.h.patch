@@ -1,0 +1,100 @@
+--- php_pHash.h.orig    2023-09-21 13:57:34.959003004 +0000
++++ php_pHash.h 2023-09-21 14:23:38.427950006 +0000
+@@ -91,19 +91,6 @@
+     zend_update_property_stringl(_this_ce, _this_zval, #name, strlen(#name), \
+                                  s, l TSRMLS_CC)
+ 
+-#if HAVE_VIDEO_HASH
+-PHP_FUNCTION(ph_dct_videohash);
+-#if (PHP_MAJOR_VERSION >= 5)
+-ZEND_BEGIN_ARG_INFO_EX(ph_dct_videohash_arg_info, ZEND_SEND_BY_VAL,
+-                       ZEND_RETURN_VALUE, 1)
+-ZEND_ARG_INFO(0, file)
+-ZEND_END_ARG_INFO()
+-#else /* PHP 4.x */
+-#define ph_dct_videohash_arg_info NULL
+-#endif
+-
+-#endif /* HAVE_VIDEO_HASH */
+-#if HAVE_IMAGE_HASH
+ PHP_FUNCTION(ph_dct_imagehash);
+ #if (PHP_MAJOR_VERSION >= 5)
+ ZEND_BEGIN_ARG_INFO_EX(ph_dct_imagehash_arg_info, ZEND_SEND_BY_VAL,
+@@ -114,7 +101,6 @@
+ #define ph_dct_imagehash_arg_info NULL
+ #endif
+ 
+-#endif /* HAVE_IMAGE_HASH */
+ PHP_FUNCTION(ph_texthash);
+ #if (PHP_MAJOR_VERSION >= 5)
+ ZEND_BEGIN_ARG_INFO_EX(ph_texthash_arg_info, ZEND_SEND_BY_VAL,
+@@ -125,21 +111,6 @@
+ #define ph_texthash_arg_info NULL
+ #endif
+ 
+-#if HAVE_AUDIO_HASH
+-PHP_FUNCTION(ph_audiohash);
+-#if (PHP_MAJOR_VERSION >= 5)
+-ZEND_BEGIN_ARG_INFO_EX(ph_audiohash_arg_info, ZEND_SEND_BY_VAL,
+-                       ZEND_RETURN_VALUE, 1)
+-ZEND_ARG_INFO(0, file)
+-ZEND_ARG_INFO(0, sample_rate)
+-ZEND_ARG_INFO(0, channels)
+-ZEND_END_ARG_INFO()
+-#else /* PHP 4.x */
+-#define ph_audiohash_arg_info NULL
+-#endif
+-
+-#endif /* HAVE_AUDIO_HASH */
+-#if HAVE_IMAGE_HASH
+ PHP_FUNCTION(ph_image_dist);
+ #if (PHP_MAJOR_VERSION >= 5)
+ ZEND_BEGIN_ARG_INFO_EX(ph_image_dist_arg_info, ZEND_SEND_BY_VAL,
+@@ -151,36 +122,6 @@
+ #define ph_image_dist_arg_info NULL
+ #endif
+ 
+-#endif /* HAVE_IMAGE_HASH */
+-#if HAVE_VIDEO_HASH
+-PHP_FUNCTION(ph_video_dist);
+-#if (PHP_MAJOR_VERSION >= 5)
+-ZEND_BEGIN_ARG_INFO_EX(ph_video_dist_arg_info, ZEND_SEND_BY_VAL,
+-                       ZEND_RETURN_VALUE, 2)
+-ZEND_ARG_INFO(0, h1)
+-ZEND_ARG_INFO(0, h2)
+-ZEND_ARG_INFO(0, thresh)
+-ZEND_END_ARG_INFO()
+-#else /* PHP 4.x */
+-#define ph_video_dist_arg_info NULL
+-#endif
+-
+-#endif /* HAVE_VIDEO_HASH */
+-#if HAVE_AUDIO_HASH
+-PHP_FUNCTION(ph_audio_dist);
+-#if (PHP_MAJOR_VERSION >= 5)
+-ZEND_BEGIN_ARG_INFO_EX(ph_audio_dist_arg_info, ZEND_SEND_BY_VAL,
+-                       ZEND_RETURN_VALUE, 2)
+-ZEND_ARG_INFO(0, h1)
+-ZEND_ARG_INFO(0, h2)
+-ZEND_ARG_INFO(0, block_size)
+-ZEND_ARG_INFO(0, thresh)
+-ZEND_END_ARG_INFO()
+-#else /* PHP 4.x */
+-#define ph_audio_dist_arg_info NULL
+-#endif
+-
+-#endif /* HAVE_AUDIO_HASH */
+ PHP_FUNCTION(ph_compare_text_hashes);
+ #if (PHP_MAJOR_VERSION >= 5)
+ ZEND_BEGIN_ARG_INFO_EX(ph_compare_text_hashes_arg_info, ZEND_SEND_BY_VAL,
+@@ -192,6 +133,9 @@
+ #define ph_compare_text_hashes_arg_info NULL
+ #endif
+ 
++#define SIZETorINT size_t
++#define zppLONG zend_long
++
+ #ifdef __cplusplus
+ }  // extern "C"
+ #endif
+ 
