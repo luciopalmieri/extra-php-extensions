@@ -84,7 +84,7 @@ It might be good to build extension step-by-step and create Dockerfile from comm
 history instead of immediately building from Dockerfile.
 
 ```bash
-$ docker run -it bref/build-php-$PHP_VERSION /bin/bash  # Run build environment with ”-it” option and build the extension step by step.
+$ docker run -it bref/build-php-$PHP_VERSION:$BREF_VERSION /bin/bash  # Run build environment with ”-it” option and build the extension step by step.
 ```
 
 Once you have created Dockerfile, make sure the build succeeds.
