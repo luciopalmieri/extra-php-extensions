@@ -19,29 +19,8 @@
 
 #if HAVE_PHASH
 
-struct ph_audio_hash {
-    uint32_t *hash;
-    int len;
-};
-struct ph_video_hash {
-    ulong64 *hash;
-    int len;
-};
-struct ph_text_hash {
-    TxtHashPoint *p;
-    int count;
-};
 
 /* {{{ Resource destructors */
-int le_ph_video_hash;
-extern "C" void ph_video_hash_dtor(zend_resource *rsrc TSRMLS_DC) {
-    ph_video_hash *resource = (ph_video_hash *)(rsrc->ptr);
-
-    if (resource) {
-        free(resource->hash);
-        free(resource);
-    }
-}
 
 int le_ph_image_hash;
 extern "C" void ph_image_hash_dtor(zend_resource *rsrc TSRMLS_DC) {
@@ -50,36 +29,12 @@ extern "C" void ph_image_hash_dtor(zend_resource *rsrc TSRMLS_DC) {
     if (resource) free(resource);
 }
 
-int le_ph_audio_hash;
-extern "C" void ph_audio_hash_dtor(zend_resource *rsrc TSRMLS_DC) {
-    ph_audio_hash *resource = (ph_audio_hash *)(rsrc->ptr);
-
-    if (resource) {
-        free(resource->hash);
-        free(resource);
-    }
-}
-
-int le_ph_txt_hash;
-extern "C" void ph_txt_hash_dtor(zend_resource *rsrc TSRMLS_DC) {
-    ph_text_hash *resource = (ph_text_hash *)(rsrc->ptr);
-
-    if (resource) {
-        free(resource->p);
-        free(resource);
-    }
-}
-
 /* }}} */
 
 /* {{{ pHash_functions[] */
 zend_function_entry pHash_functions[] = {
         PHP_FE(ph_dct_imagehash, ph_dct_imagehash_arg_info)
-        PHP_FE(ph_texthash, ph_texthash_arg_info)
-        PHP_FE(ph_image_dist, ph_image_dist_arg_info)
-        PHP_FE(ph_compare_text_hashes,
-               ph_compare_text_hashes_arg_info){
-               NULL, NULL, NULL}};
+        PHP_FE(ph_image_dist, ph_image_dist_arg_info)};
 /* }}} */
 
 /* {{{ pHash_module_entry
@@ -105,16 +60,8 @@ ZEND_GET_MODULE(pHash)
 
 /* {{{ PHP_MINIT_FUNCTION */
 PHP_MINIT_FUNCTION(pHash) {
-    le_ph_video_hash = zend_register_list_destructors_ex(
-        ph_video_hash_dtor, NULL, "ph_video_hash", module_number);
     le_ph_image_hash = zend_register_list_destructors_ex(
         ph_image_hash_dtor, NULL, "ph_image_hash", module_number);
-    le_ph_audio_hash = zend_register_list_destructors_ex(
-        ph_audio_hash_dtor, NULL, "ph_audio_hash", module_number);
-    le_ph_txt_hash = zend_register_list_destructors_ex(
-        ph_txt_hash_dtor, NULL, "ph_txt_hash", module_number);
-
-    /* add your stuff here */
 
     return SUCCESS;
 }
@@ -195,34 +142,6 @@ PHP_FUNCTION(ph_dct_imagehash) {
 /* }}} ph_dct_imagehash */
 
 
-/* {{{ proto resource ph_txt_hash ph_texthash(string file)
-  pHash cyclic text hash */
-PHP_FUNCTION(ph_texthash) {
-    ph_text_hash *return_res;
-    long return_res_id = -1;
-
-    const char *file = NULL;
-    int file_len = 0;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &file,
-                              &file_len) == FAILURE) {
-        return;
-    }
-
-    int num;
-    TxtHashPoint *txtHash = ph_texthash(file, &num);
-    if (txtHash) {
-        ph_text_hash *h = (ph_text_hash *)malloc(sizeof(ph_text_hash));
-        h->p = txtHash;
-        h->count = num;
-        return_res = h;
-    } else
-        RETURN_FALSE;
-
-    RETURN_RES(zend_register_resource(return_res, le_ph_txt_hash));
-}
-/* }}} ph_texthash */
-
 /* {{{ proto float ph_image_dist(resource ph_image_hash h1,resource
   ph_image_hash h2) pHash image distance. */
 PHP_FUNCTION(ph_image_dist) {
@@ -253,54 +172,6 @@ PHP_FUNCTION(ph_image_dist) {
 }
 /* }}} ph_image_dist */
 
-
-
-/* {{{ proto array ph_compare_text_hashes(resource ph_txt_hash h1,resource
-  ph_txt_hash h2) pHash text distance. */
-PHP_FUNCTION(ph_compare_text_hashes) {
-    zval *h1_res = NULL;
-    int h1_resid = -1;
-    ph_text_hash *h1;
-    zval *h2_res = NULL;
-    int h2_resid = -1;
-    ph_text_hash *h2;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rr", &h1_res,
-                              &h2_res) == FAILURE) {
-        return;
-    }
-
-    if ((h1 = (ph_text_hash *)zend_fetch_resource2(Z_RES_P(h1_res), "ph_txt_hash", h1_resid, le_ph_txt_hash)) == NULL) {
-        RETURN_FALSE;
-    }
-    if ((h2 = (ph_text_hash *)zend_fetch_resource2(Z_RES_P(h2_res), "ph_txt_hash", h2_resid, le_ph_txt_hash)) == NULL) {
-        RETURN_FALSE;
-    }
-
-
-    array_init(return_value);
-
-    if (h1 && h2) {
-        int count = 0;
-        TxtMatch *m =
-            ph_compare_text_hashes(h1->p, h1->count, h2->p, h2->count, &count);
-        if (m) {
-            for (int i = 0; i < count; ++i) {
-                zval array;
-                array_init(&array);
-                add_assoc_long(&array, "begin", m[i].first_index);
-                add_assoc_long(&array, "end", m[i].second_index);
-                add_assoc_long(&array, "length", m[i].length);
-                add_next_index_zval(return_value, &array);
-            }
-            free(m);
-        } else
-            RETURN_FALSE;
-
-    } else
-        RETURN_FALSE;
-}
-/* }}} ph_compare_text_hashes */
 
 #endif /* HAVE_PHASH */
 

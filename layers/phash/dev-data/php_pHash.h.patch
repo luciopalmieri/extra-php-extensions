@@ -1,6 +1,14 @@
---- php_pHash.h.orig    2023-09-21 13:57:34.959003004 +0000
-+++ php_pHash.h 2023-09-21 14:23:38.427950006 +0000
-@@ -91,19 +91,6 @@
+--- php_pHash.h.orig	2023-09-22 16:41:44.000000000 +0200
++++ php_pHash.h	2023-09-22 16:44:47.000000000 +0200
+@@ -37,7 +37,6 @@
+ #ifdef __cplusplus
+ }  // extern "C"
+ #endif
+-#include <audiophash.h>
+ #include <pHash.h>
+ #ifdef __cplusplus
+ extern "C" {
+@@ -91,19 +90,6 @@
      zend_update_property_stringl(_this_ce, _this_zval, #name, strlen(#name), \
                                   s, l TSRMLS_CC)
  
@@ -20,18 +28,21 @@
  PHP_FUNCTION(ph_dct_imagehash);
  #if (PHP_MAJOR_VERSION >= 5)
  ZEND_BEGIN_ARG_INFO_EX(ph_dct_imagehash_arg_info, ZEND_SEND_BY_VAL,
-@@ -114,7 +101,6 @@
+@@ -114,32 +100,6 @@
  #define ph_dct_imagehash_arg_info NULL
  #endif
  
 -#endif /* HAVE_IMAGE_HASH */
- PHP_FUNCTION(ph_texthash);
- #if (PHP_MAJOR_VERSION >= 5)
- ZEND_BEGIN_ARG_INFO_EX(ph_texthash_arg_info, ZEND_SEND_BY_VAL,
-@@ -125,21 +111,6 @@
- #define ph_texthash_arg_info NULL
- #endif
- 
+-PHP_FUNCTION(ph_texthash);
+-#if (PHP_MAJOR_VERSION >= 5)
+-ZEND_BEGIN_ARG_INFO_EX(ph_texthash_arg_info, ZEND_SEND_BY_VAL,
+-                       ZEND_RETURN_VALUE, 1)
+-ZEND_ARG_INFO(0, file)
+-ZEND_END_ARG_INFO()
+-#else /* PHP 4.x */
+-#define ph_texthash_arg_info NULL
+-#endif
+-
 -#if HAVE_AUDIO_HASH
 -PHP_FUNCTION(ph_audiohash);
 -#if (PHP_MAJOR_VERSION >= 5)
@@ -50,7 +61,7 @@
  PHP_FUNCTION(ph_image_dist);
  #if (PHP_MAJOR_VERSION >= 5)
  ZEND_BEGIN_ARG_INFO_EX(ph_image_dist_arg_info, ZEND_SEND_BY_VAL,
-@@ -151,36 +122,6 @@
+@@ -151,46 +111,8 @@
  #define ph_image_dist_arg_info NULL
  #endif
  
@@ -84,17 +95,15 @@
 -#endif
 -
 -#endif /* HAVE_AUDIO_HASH */
- PHP_FUNCTION(ph_compare_text_hashes);
- #if (PHP_MAJOR_VERSION >= 5)
- ZEND_BEGIN_ARG_INFO_EX(ph_compare_text_hashes_arg_info, ZEND_SEND_BY_VAL,
-@@ -192,6 +133,9 @@
- #define ph_compare_text_hashes_arg_info NULL
- #endif
- 
+-PHP_FUNCTION(ph_compare_text_hashes);
+-#if (PHP_MAJOR_VERSION >= 5)
+-ZEND_BEGIN_ARG_INFO_EX(ph_compare_text_hashes_arg_info, ZEND_SEND_BY_VAL,
+-                       ZEND_RETURN_VALUE, 2)
+-ZEND_ARG_INFO(0, h1)
+-ZEND_ARG_INFO(0, h2)
+-ZEND_END_ARG_INFO()
+-#else /* PHP 4.x */
+-#define ph_compare_text_hashes_arg_info NULL
+-#endif
 +#define SIZETorINT size_t
 +#define zppLONG zend_long
-+
- #ifdef __cplusplus
- }  // extern "C"
- #endif
- 
