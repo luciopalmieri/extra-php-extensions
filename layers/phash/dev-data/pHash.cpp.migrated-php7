@@ -16,6 +16,7 @@
 
 #include "php_pHash.h"
 
+#include <string>
 
 #if HAVE_PHASH
 
@@ -33,6 +34,7 @@ extern "C" void ph_image_hash_dtor(zend_resource *rsrc TSRMLS_DC) {
 
 /* {{{ pHash_functions[] */
 zend_function_entry pHash_functions[] = {
+        PHP_FE(ph_dct_imagehash_string_dec, ph_dct_imagehash_string_dec_arg_info)
         PHP_FE(ph_dct_imagehash, ph_dct_imagehash_arg_info)
         PHP_FE(ph_image_dist, ph_image_dist_arg_info)};
 /* }}} */
@@ -122,7 +124,7 @@ PHP_FUNCTION(ph_dct_imagehash) {
     long return_res_id = -1;
 
     const char *file = NULL;
-    int file_len = 0;
+    SIZETorINT file_len = 0;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &file,
                               &file_len) == FAILURE) {
@@ -131,6 +133,7 @@ PHP_FUNCTION(ph_dct_imagehash) {
 
     ulong64 *hash = (ulong64 *)malloc(sizeof(ulong64));
     int ret = ph_dct_imagehash(file, *hash);
+
     if (ret != 0) {
         free(hash);
         RETURN_FALSE;
@@ -140,6 +143,29 @@ PHP_FUNCTION(ph_dct_imagehash) {
     RETURN_RES(zend_register_resource(return_res, le_ph_image_hash));
 }
 /* }}} ph_dct_imagehash */
+
+
+/* {{{ proto string ph_image_hash ph_dct_imagehash_string_dec(string file)
+  pHash DCT image hash */
+PHP_FUNCTION(ph_dct_imagehash_string_dec) {
+    const char *file = NULL;
+    SIZETorINT file_len = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &file,
+                              &file_len) == FAILURE) {
+        return;
+    }
+
+    ulong64 hashDec;
+    int ret = ph_dct_imagehash(file, hashDec);
+
+    char hashStr [sizeof(ulong64)*100];
+    sprintf(hashStr, "%s", to_string(hashDec).c_str());
+   
+    RETURN_STRING(hashStr);
+
+}
+/* }}} ph_dct_imagehash_string_dec */
 
 
 /* {{{ proto float ph_image_dist(resource ph_image_hash h1,resource

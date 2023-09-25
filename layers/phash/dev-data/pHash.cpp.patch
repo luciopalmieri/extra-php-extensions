@@ -1,9 +1,10 @@
 --- pHash.cpp.orig	2023-09-22 16:41:20.000000000 +0200
-+++ pHash.cpp	2023-09-22 16:53:33.000000000 +0200
-@@ -16,94 +16,25 @@
++++ pHash.cpp	2023-09-25 12:55:31.000000000 +0200
+@@ -16,94 +16,27 @@
  
  #include "php_pHash.h"
  
++#include <string>
 +
  #if HAVE_PHASH
  
@@ -76,6 +77,7 @@
 -    PHP_FE(ph_dct_videohash, ph_dct_videohash_arg_info)
 -#endif /* HAVE_VIDEO_HASH */
 -#if HAVE_IMAGE_HASH
++        PHP_FE(ph_dct_imagehash_string_dec, ph_dct_imagehash_string_dec_arg_info)
          PHP_FE(ph_dct_imagehash, ph_dct_imagehash_arg_info)
 -#endif /* HAVE_IMAGE_HASH */
 -            PHP_FE(ph_texthash, ph_texthash_arg_info)
@@ -98,7 +100,7 @@
  /* }}} */
  
  /* {{{ pHash_module_entry
-@@ -129,17 +60,8 @@
+@@ -129,17 +62,8 @@
  
  /* {{{ PHP_MINIT_FUNCTION */
  PHP_MINIT_FUNCTION(pHash) {
@@ -116,7 +118,7 @@
  
      return SUCCESS;
  }
-@@ -147,7 +69,6 @@
+@@ -147,7 +71,6 @@
  
  /* {{{ PHP_MSHUTDOWN_FUNCTION */
  PHP_MSHUTDOWN_FUNCTION(pHash) {
@@ -124,7 +126,7 @@
  
      /* add your stuff here */
  
-@@ -178,7 +99,6 @@
+@@ -178,7 +101,6 @@
          if (SG(request_info).request_uri) {
              php_printf("%s", (SG(request_info).request_uri));
          }
@@ -132,7 +134,7 @@
          php_printf("' align='right' alt='image' border='0'>\n");
  
          php_printf("pHash\n");
-@@ -194,40 +114,7 @@
+@@ -194,40 +116,7 @@
  }
  /* }}} */
  
@@ -173,7 +175,23 @@
  /* {{{ proto resource ph_image_hash ph_dct_imagehash(string file)
    pHash DCT image hash */
  PHP_FUNCTION(ph_dct_imagehash) {
-@@ -250,85 +137,11 @@
+@@ -235,7 +124,7 @@
+     long return_res_id = -1;
+ 
+     const char *file = NULL;
+-    int file_len = 0;
++    SIZETorINT file_len = 0;
+ 
+     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &file,
+                               &file_len) == FAILURE) {
+@@ -244,91 +133,41 @@
+ 
+     ulong64 *hash = (ulong64 *)malloc(sizeof(ulong64));
+     int ret = ph_dct_imagehash(file, *hash);
++
+     if (ret != 0) {
+         free(hash);
+         RETURN_FALSE;
      } else
          return_res = hash;
  
@@ -184,21 +202,25 @@
  /* }}} ph_dct_imagehash */
  
 -#endif /* HAVE_IMAGE_HASH */
- 
+-
 -/* {{{ proto resource ph_txt_hash ph_texthash(string file)
 -  pHash cyclic text hash */
 -PHP_FUNCTION(ph_texthash) {
 -    ph_text_hash *return_res;
 -    long return_res_id = -1;
--
--    const char *file = NULL;
+ 
++/* {{{ proto string ph_image_hash ph_dct_imagehash_string_dec(string file)
++  pHash DCT image hash */
++PHP_FUNCTION(ph_dct_imagehash_string_dec) {
+     const char *file = NULL;
 -    int file_len = 0;
--
--    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &file,
--                              &file_len) == FAILURE) {
--        return;
--    }
--
++    SIZETorINT file_len = 0;
+ 
+     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &file,
+                               &file_len) == FAILURE) {
+         return;
+     }
+ 
 -    int num;
 -    TxtHashPoint *txtHash = ph_texthash(file, &num);
 -    if (txtHash) {
@@ -230,7 +252,9 @@
 -                              &file_len, &sample_rate, &channels) == FAILURE) {
 -        return;
 -    }
--
++    ulong64 hashDec;
++    int ret = ph_dct_imagehash(file, hashDec);
+ 
 -    int n;
 -    float *audiobuf = ph_readaudio(file, sample_rate, channels, NULL, n);
 -    if (audiobuf) {
@@ -248,19 +272,24 @@
 -            RETURN_FALSE;
 -    } else
 -        RETURN_FALSE;
--
++    char hashStr [sizeof(ulong64)*100];
++    sprintf(hashStr, "%s", to_string(hashDec).c_str());
++   
++    RETURN_STRING(hashStr);
+ 
 -    return_res_id =
 -        ZEND_REGISTER_RESOURCE(return_value, return_res, le_ph_audio_hash);
--}
+ }
 -/* }}} ph_audiohash */
--
++/* }}} ph_dct_imagehash_string_dec */
+ 
 -#endif /* HAVE_AUDIO_HASH */
--
+ 
 -#if HAVE_IMAGE_HASH
  /* {{{ proto float ph_image_dist(resource ph_image_hash h1,resource
    ph_image_hash h2) pHash image distance. */
  PHP_FUNCTION(ph_image_dist) {
-@@ -343,143 +156,22 @@
+@@ -343,143 +182,22 @@
                                &h2_res) == FAILURE) {
          return;
      }
@@ -278,7 +307,7 @@
 -/* }}} ph_image_dist */
 -
 -#endif /* HAVE_IMAGE_HASH */
- 
+-
 -#if HAVE_VIDEO_HASH
 -/* {{{ proto float ph_video_dist(resource ph_video_hash h1,resource
 -  ph_video_hash h2, int thresh=21) pHash video distance. */
@@ -291,7 +320,7 @@
 -    ph_video_hash *h2;
 -
 -    long thresh = 21;
--
+ 
 -    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rr|l", &h1_res,
 -                              &h2_res, &thresh) == FAILURE) {
 -        return;

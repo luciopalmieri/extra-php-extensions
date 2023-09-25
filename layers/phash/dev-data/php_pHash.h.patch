@@ -1,5 +1,5 @@
 --- php_pHash.h.orig	2023-09-22 16:41:44.000000000 +0200
-+++ php_pHash.h	2023-09-22 16:44:47.000000000 +0200
++++ php_pHash.h	2023-09-25 12:55:31.000000000 +0200
 @@ -37,7 +37,6 @@
  #ifdef __cplusplus
  }  // extern "C"
@@ -28,7 +28,7 @@
  PHP_FUNCTION(ph_dct_imagehash);
  #if (PHP_MAJOR_VERSION >= 5)
  ZEND_BEGIN_ARG_INFO_EX(ph_dct_imagehash_arg_info, ZEND_SEND_BY_VAL,
-@@ -114,32 +100,6 @@
+@@ -114,32 +100,17 @@
  #define ph_dct_imagehash_arg_info NULL
  #endif
  
@@ -42,26 +42,29 @@
 -#else /* PHP 4.x */
 -#define ph_texthash_arg_info NULL
 -#endif
--
+ 
 -#if HAVE_AUDIO_HASH
 -PHP_FUNCTION(ph_audiohash);
--#if (PHP_MAJOR_VERSION >= 5)
++PHP_FUNCTION(ph_dct_imagehash_string_dec);
+ #if (PHP_MAJOR_VERSION >= 5)
 -ZEND_BEGIN_ARG_INFO_EX(ph_audiohash_arg_info, ZEND_SEND_BY_VAL,
--                       ZEND_RETURN_VALUE, 1)
--ZEND_ARG_INFO(0, file)
++ZEND_BEGIN_ARG_INFO_EX(ph_dct_imagehash_string_dec_arg_info, ZEND_SEND_BY_VAL,
+                        ZEND_RETURN_VALUE, 1)
+ ZEND_ARG_INFO(0, file)
 -ZEND_ARG_INFO(0, sample_rate)
 -ZEND_ARG_INFO(0, channels)
--ZEND_END_ARG_INFO()
--#else /* PHP 4.x */
+ ZEND_END_ARG_INFO()
+ #else /* PHP 4.x */
 -#define ph_audiohash_arg_info NULL
--#endif
--
++#define ph_dct_imagehash_string_dec_arg_info NULL
+ #endif
+ 
 -#endif /* HAVE_AUDIO_HASH */
 -#if HAVE_IMAGE_HASH
  PHP_FUNCTION(ph_image_dist);
  #if (PHP_MAJOR_VERSION >= 5)
  ZEND_BEGIN_ARG_INFO_EX(ph_image_dist_arg_info, ZEND_SEND_BY_VAL,
-@@ -151,46 +111,8 @@
+@@ -151,46 +122,8 @@
  #define ph_image_dist_arg_info NULL
  #endif
  
