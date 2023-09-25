@@ -1,6 +1,6 @@
 ARG PHP_VERSION
 ARG BREF_VERSION
-FROM --platform=amd64 bref/build-php-$PHP_VERSION:$BREF_VERSION AS ext
+FROM --platform=linux/arm64/v8 bref/build-php-$PHP_VERSION:$BREF_VERSION AS ext
 ARG PHP_VERSION
 
 # Prepare environment
